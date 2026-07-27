@@ -8,6 +8,11 @@ const connectDB = require("./src/config/db");
 const app = express();
 //database connection
 connectDB();
+
+// Start alert job
+const startAlertJob = require("./src/jobs/alert.job");
+startAlertJob();
+
 //middlewares
 app.use(helmet());
 app.use(cors());
@@ -19,9 +24,10 @@ app.get("/",(req,res)=>{
   res.json({ message: "Gold Karigor Tracker API Running" });
 })
 
-// Routes (we add these next)
-// app.use("/api/auth", require("./src/routes/auth.routes"));
-// app.use("/api/kaaj", require("./src/routes/kaaj.routes"));
+// Routes
+app.use("/api/auth", require("./src/routes/auth.routes"));
+
+app.use("/api/kaaj", require("./src/routes/kaaj.routes"));
 
 // Handle unknown routes
 app.use((req, res) => {
