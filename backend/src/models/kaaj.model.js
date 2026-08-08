@@ -67,7 +67,7 @@ kaajSchema.virtual("status").get(function () {
 
 kaajSchema.virtual("extraOjon").get(function () {
   if (this.issueOjon && this.receiveOjon) {
-    return (this.issueOjon - this.receiveOjon).toFixed(2);
+    return (this.issueOjon - this.receiveOjon).toFixed(3);
   }
   return null;
 });
