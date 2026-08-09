@@ -18,10 +18,11 @@ app.use(helmet());
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    process.env.FRONTEND_URL
+    "https://goldshop-karigor-tracker.vercel.app"
   ],
   credentials: true
 }));
+
 app.use(morgan("dev"));
 app.use(express.json());
 
