@@ -4,6 +4,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Register from "./pages/Register";
+import AdminPanel from "./pages/AdminPanel";
 import { useAuth } from "./context/AuthContext";
 
 function App() {
@@ -13,6 +15,7 @@ function App() {
     <>
       <Toaster position="top-right" />
       <Routes>
+        {/* Public routes */}
         <Route
           path="/login"
           element={!user ? <Login /> : <Navigate to="/dashboard" />}
@@ -26,9 +29,31 @@ function App() {
           element={!user ? <ResetPassword /> : <Navigate to="/dashboard" />}
         />
         <Route
+          path="/register"
+          element={!user ? <Register /> : <Navigate to="/dashboard" />}
+        />
+
+        {/* Protected routes */}
+        <Route
           path="/dashboard"
           element={user ? <Dashboard /> : <Navigate to="/login" />}
         />
+        <Route
+          path="/admin"
+          element={
+            user ? (
+              user.role === "admin" ? (
+                <AdminPanel />
+              ) : (
+                <Navigate to="/dashboard" />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        {/* Default */}
         <Route
           path="*"
           element={<Navigate to={user ? "/dashboard" : "/login"} />}

@@ -275,6 +275,215 @@ const resetPassword = async (req, res) => {
     console.error("Reset password error:", error);
     return errorResponse(res, 500, error.message);
   }
+  
+};
+// @desc  Generate invite link (admin only)
+// @route POST /api/auth/generate-invite
+const generateInvite = async (req, res) => {
+  try {
+    const crypto = require("crypto");
+    const bcrypt = require("bcryptjs");
+
+    // Generate random token
+    const inviteToken = crypto.randomBytes(32).toString("hex");
+
+    // Expires in 7 days
+    const inviteTokenExpiry = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000
+    );
+
+    // Hash a dummy password manually
+    // to avoid pre save hook issue
+    const salt = await bcrypt.genSalt(10);
+    const dummyPassword = await bcrypt.hash(
+      crypto.randomBytes(16).toString("hex"),
+      salt
+    );
+
+    // Insert directly to DB bypassing pre save hook
+    await User.collection.insertOne({
+      name: "pending",
+      email: `invite_${inviteToken}@pending.com`,
+      password: dummyPassword,
+      role: "manager",
+      isActive: false,
+      inviteToken,
+      inviteTokenExpiry,
+      resetOTP: null,
+      resetOTPExpiry: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const inviteLink = `${
+      process.env.FRONTEND_URL || "http://localhost:5173"
+    }/register?token=${inviteToken}`;
+
+    return successResponse(res, 201, "Invite link generated", {
+      inviteLink,
+      expiresIn: "7 days",
+    });
+  } catch (error) {
+    console.error("Generate invite error:", error);
+    return errorResponse(res, 500, error.message);
+  }
+};
+
+// @desc  Validate invite token
+// @route GET /api/auth/validate-invite/:token
+const validateInvite = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const invite = await User.findOne({
+      inviteToken: token,
+      isActive: false,
+      name: "pending",
+    });
+
+    if (!invite) {
+      return errorResponse(res, 400, "Invalid invite link");
+    }
+
+    if (new Date() > new Date(invite.inviteTokenExpiry)) {
+      await User.findByIdAndDelete(invite._id);
+      return errorResponse(
+        res,
+        400,
+        "Invite link has expired. Please request a new one."
+      );
+    }
+
+    return successResponse(res, 200, "Valid invite link", {
+      valid: true,
+    });
+  } catch (error) {
+    return errorResponse(res, 500, error.message);
+  }
+};
+
+// @desc  Register manager via invite
+// @route POST /api/auth/register
+const registerManager = async (req, res) => {
+  try {
+    const { name, email, password, token } = req.body;
+
+    if (!name || !email || !password || !token) {
+      return errorResponse(res, 400, "Please provide all fields");
+    }
+
+    if (password.length < 6) {
+      return errorResponse(
+        res,
+        400,
+        "Password must be at least 6 characters"
+      );
+    }
+
+    // Find invite
+    const invite = await User.findOne({
+      inviteToken: token,
+      isActive: false,
+      name: "pending",
+    });
+
+    if (!invite) {
+      return errorResponse(res, 400, "Invalid invite link");
+    }
+
+    if (new Date() > new Date(invite.inviteTokenExpiry)) {
+      await User.findByIdAndDelete(invite._id);
+      return errorResponse(
+        res,
+        400,
+        "Invite link has expired. Please request a new one."
+      );
+    }
+
+    // Check email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return errorResponse(res, 400, "Email already registered");
+    }
+
+    // Hash password
+    const bcrypt = require("bcryptjs");
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Update the pending invite record to real manager
+    const manager = await User.findByIdAndUpdate(
+      invite._id,
+      {
+        name,
+        email,
+        password: hashedPassword,
+        role: "manager",
+        isActive: true,
+        inviteToken: null,
+        inviteTokenExpiry: null,
+      },
+      { new: true }
+    );
+
+    // Generate token
+    const jwtToken = generateToken(manager._id);
+
+    return successResponse(res, 201, "Account created successfully", {
+      token: jwtToken,
+      user: {
+        id: manager._id,
+        name: manager.name,
+        email: manager.email,
+        role: manager.role,
+      },
+    });
+  } catch (error) {
+    return errorResponse(res, 500, error.message);
+  }
+};
+
+// @desc  Get all managers (admin only)
+// @route GET /api/auth/managers
+const getManagers = async (req, res) => {
+  try {
+    const managers = await User.find({
+      role: "manager",
+      name: { $ne: "pending" },
+    }).select("-password -resetOTP -resetOTPExpiry -inviteToken -inviteTokenExpiry");
+
+    return successResponse(res, 200, "Managers fetched", managers);
+  } catch (error) {
+    return errorResponse(res, 500, error.message);
+  }
+};
+
+// @desc  Deactivate manager (admin only)
+// @route PATCH /api/auth/managers/:id/deactivate
+const deactivateManager = async (req, res) => {
+  try {
+    const manager = await User.findById(req.params.id);
+
+    if (!manager) {
+      return errorResponse(res, 404, "Manager not found");
+    }
+
+    if (manager.role === "admin") {
+      return errorResponse(res, 400, "Cannot deactivate admin");
+    }
+
+    await User.findByIdAndUpdate(req.params.id, {
+      isActive: !manager.isActive,
+    });
+
+    return successResponse(
+      res,
+      200,
+      `Manager ${manager.isActive ? "deactivated" : "activated"} successfully`
+    );
+  } catch (error) {
+    return errorResponse(res, 500, error.message);
+  }
 };
 
 module.exports = {
@@ -283,4 +492,9 @@ module.exports = {
   createManager,
   forgotPassword,
   resetPassword,
+  generateInvite,
+  validateInvite,
+  registerManager,
+  getManagers,
+  deactivateManager,
 };

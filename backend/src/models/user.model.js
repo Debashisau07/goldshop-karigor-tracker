@@ -29,6 +29,15 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Add below isActive
+inviteToken: {
+  type: String,
+  default: null,
+},
+inviteTokenExpiry: {
+  type: Date,
+  default: null,
+},
     resetOTP: {
       type: String,
       default: null,
