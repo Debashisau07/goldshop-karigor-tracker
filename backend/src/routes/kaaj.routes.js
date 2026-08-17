@@ -7,6 +7,7 @@ const {
   updateKaaj,
   deleteKaaj,
   exportKaaj,
+  deleteAllCompleted,
 } = require("../controllers/kaaj.controller");
 const { protect } = require("../middleware/auth.middleware");
 const { managerOrAdmin } = require("../middleware/role.middleware");
@@ -18,6 +19,7 @@ router.use(managerOrAdmin);
 // Export must be before /:id
 // otherwise Express thinks "export" is an id
 router.get("/export", exportKaaj);
+router.delete("/completed/all", deleteAllCompleted);
 
 router.get("/", getAllKaaj);
 router.post("/", addKaaj);

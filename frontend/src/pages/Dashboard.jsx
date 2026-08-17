@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [deleteAllConfirm, setDeleteAllConfirm] = useState(false);
 
   const fetchKaaj = async () => {
     try {
@@ -84,6 +85,25 @@ export default function Dashboard() {
       toast.error("No completed kaaj to export");
     }
   };
+  const handleDeleteAllCompleted = async () => {
+  const count = kaajList.filter((k) => k.status === "done").length;
+  if (count === 0) {
+    toast.error("No completed kaaj to delete");
+    return;
+  }
+  setDeleteAllConfirm(true);
+};
+
+const confirmDeleteAll = async () => {
+  try {
+    const res = await api.delete("/kaaj/completed/all");
+    toast.success(res.data.message);
+    setDeleteAllConfirm(false);
+    fetchKaaj();
+  } catch (error) {
+    toast.error("Failed to delete completed kaaj");
+  }
+};
 
   const stats = {
     total: kaajList.length,
@@ -273,6 +293,17 @@ const currentItems = sortedList.slice(startIndex, endIndex);
                 </svg>
                 Export Excel
               </button>
+              {stats.done > 0 && (
+  <button
+    onClick={handleDeleteAllCompleted}
+    className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-4 py-2.5 rounded-xl text-sm font-semibold transition"
+  >
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+    Delete Completed ({stats.done})
+  </button>
+)}
               <button
                 onClick={() => {
                   setEditData(null);
@@ -458,6 +489,49 @@ const currentItems = sortedList.slice(startIndex, endIndex);
           </div>
         </div>
       )}
+      {/* Delete All Completed Confirmation */}
+{deleteAllConfirm && (
+  <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm">
+      <div className="text-center">
+        <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </div>
+        <h3 className="text-xl font-bold text-gray-800 mb-2">
+          Delete All Completed?
+        </h3>
+        <p className="text-gray-500 text-sm mb-2">
+          This will permanently delete all
+          <strong className="text-red-500"> {stats.done} completed</strong> kaaj
+          records from the database.
+        </p>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-6">
+          <p className="text-yellow-700 text-xs font-medium">
+            ⚠️ Make sure you have exported
+            the records before deleting.
+            This cannot be undone.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setDeleteAllConfirm(false)}
+            className="flex-1 border border-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-50 transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmDeleteAll}
+            className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold transition shadow-lg shadow-red-100"
+          >
+            Yes Delete All
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

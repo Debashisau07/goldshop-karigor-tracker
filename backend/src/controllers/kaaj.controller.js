@@ -228,6 +228,25 @@ const exportKaaj = async (req, res) => {
   }
 };
 
+// @desc  Delete all completed kaaj
+// @route DELETE /api/kaaj/completed/all
+const deleteAllCompleted = async (req, res) => {
+  try {
+    const result = await Kaaj.deleteMany({
+      receiveDate: { $ne: null },
+    });
+
+    return successResponse(
+      res,
+      200,
+      `${result.deletedCount} completed kaaj deleted successfully`,
+      { deletedCount: result.deletedCount }
+    );
+  } catch (error) {
+    return errorResponse(res, 500, error.message);
+  }
+};
+
 module.exports = {
   addKaaj,
   getAllKaaj,
@@ -235,4 +254,5 @@ module.exports = {
   updateKaaj,
   deleteKaaj,
   exportKaaj,
+  deleteAllCompleted,
 };
