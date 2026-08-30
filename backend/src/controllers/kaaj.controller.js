@@ -41,7 +41,7 @@ const addKaaj = async (req, res) => {
 // @route GET /api/kaaj
 const getAllKaaj = async (req, res) => {
   try {
-    const { search, status } = req.query;
+    const { search, status, kaajType } = req.query;
 
     // Build query
     let query = {};
@@ -52,6 +52,11 @@ const getAllKaaj = async (req, res) => {
         { karigorName: { $regex: search, $options: "i" } },
         { kaajName: { $regex: search, $options: "i" } },
       ];
+    }
+
+    // Filter by kaaj type if provided
+    if (kaajType) {
+      query.kaajType = kaajType;
     }
 
     // Get all records
@@ -174,17 +179,18 @@ const exportKaaj = async (req, res) => {
 
     // Define columns
     worksheet.columns = [
-      { header: "Karigor Name", key: "karigorName", width: 20 },
-      { header: "Karigor Phone", key: "karigorPhone", width: 15 },
-      { header: "Kaaj Name", key: "kaajName", width: 20 },
-      { header: "Properties", key: "properties", width: 30 },
-      { header: "Notes", key: "notes", width: 20 },
-      { header: "Issue Date", key: "issueDate", width: 15 },
-      { header: "Issue Ojon (g)", key: "issueOjon", width: 15 },
-      { header: "Receive Ojon (g)", key: "receiveOjon", width: 15 },
-      { header: "Extra Ojon (g)", key: "extraOjon", width: 15 },
-      { header: "Receive Date", key: "receiveDate", width: 15 },
-    ];
+  { header: "Karigor Name", key: "karigorName", width: 20 },
+  { header: "Karigor Phone", key: "karigorPhone", width: 15 },
+  { header: "Type", key: "kaajType", width: 12 },
+  { header: "Kaaj Name", key: "kaajName", width: 20 },
+  { header: "Properties", key: "properties", width: 30 },
+  { header: "Notes", key: "notes", width: 20 },
+  { header: "Issue Date", key: "issueDate", width: 15 },
+  { header: "Issue Ojon (g)", key: "issueOjon", width: 15 },
+  { header: "Receive Ojon (g)", key: "receiveOjon", width: 15 },
+  { header: "Extra Ojon (g)", key: "extraOjon", width: 15 },
+  { header: "Receive Date", key: "receiveDate", width: 15 },
+];
 
     // Style header row
     worksheet.getRow(1).font = { bold: true };
@@ -200,6 +206,7 @@ const exportKaaj = async (req, res) => {
       worksheet.addRow({
         karigorName: obj.karigorName,
         karigorPhone: obj.karigorPhone || "-",
+        kaajType: obj.kaajType === "repair" ? "Repair" : "New Work",
         kaajName: obj.kaajName,
         properties: obj.properties,
         notes: obj.notes || "-",

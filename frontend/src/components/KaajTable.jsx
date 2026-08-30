@@ -144,16 +144,25 @@ export default function KaajTable({
                         <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
                           {kaaj.karigorName.charAt(0).toUpperCase()}
                         </div>
-                        <div>
-                          <p className="font-semibold text-gray-800">
-                            {kaaj.karigorName}
-                          </p>
-                          {kaaj.karigorPhone && (
-                            <p className="text-gray-400 text-xs">
-                              {kaaj.karigorPhone}
-                            </p>
-                          )}
-                        </div>
+                       <div>
+  <div className="flex items-center gap-2">
+    <p className="font-semibold text-gray-800">
+      {kaaj.karigorName}
+    </p>
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold ${
+      kaaj.kaajType === "repair"
+        ? "bg-orange-100 text-orange-700"
+        : "bg-yellow-100 text-yellow-700"
+    }`}>
+      {kaaj.kaajType === "repair" ? "🔨 Repair" : "✨ New"}
+    </span>
+  </div>
+  {kaaj.karigorPhone && (
+    <p className="text-gray-400 text-xs">
+      {kaaj.karigorPhone}
+    </p>
+  )}
+</div>
                       </div>
                     </td>
                     <td className="px-5 py-4">

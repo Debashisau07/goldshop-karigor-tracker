@@ -18,26 +18,30 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [deleteAllConfirm, setDeleteAllConfirm] = useState(false);
+  const [kaajTypeFilter, setKaajTypeFilter] = useState("all");
 
-  const fetchKaaj = async () => {
-    try {
-      setLoading(true);
-      const params = {};
-      if (search) params.search = search;
-      if (statusFilter) params.status = statusFilter;
-      const res = await api.get("/kaaj", { params });
-      setKaajList(res.data.data);
-    } catch (error) {
-      toast.error("Failed to fetch records");
-    } finally {
-      setLoading(false);
+const fetchKaaj = async () => {
+  try {
+    setLoading(true);
+    const params = {};
+    if (search) params.search = search;
+    if (statusFilter) params.status = statusFilter;
+    if (kaajTypeFilter && kaajTypeFilter !== "all") {
+      params.kaajType = kaajTypeFilter;
     }
-  };
+    const res = await api.get("/kaaj", { params });
+    setKaajList(res.data.data);
+  } catch (error) {
+    toast.error("Failed to fetch records");
+  } finally {
+    setLoading(false);
+  }
+};
 
-  useEffect(() => {
-    fetchKaaj();
-    setCurrentPage(1);
-  }, [search, statusFilter]);
+useEffect(() => {
+  fetchKaaj();
+  setCurrentPage(1);
+}, [search, statusFilter, kaajTypeFilter]);
 
   const handleEdit = (kaaj) => {
     setEditData(kaaj);
@@ -105,13 +109,14 @@ const confirmDeleteAll = async () => {
   }
 };
 
-  const stats = {
-    total: kaajList.length,
-    green: kaajList.filter((k) => k.status === "green").length,
-    yellow: kaajList.filter((k) => k.status === "yellow").length,
-    red: kaajList.filter((k) => k.status === "red").length,
-    done: kaajList.filter((k) => k.status === "done").length,
-  };
+const stats = {
+  total: kaajList.length,
+  green: kaajList.filter((k) => k.status === "green").length,
+  yellow: kaajList.filter((k) => k.status === "yellow").length,
+  red: kaajList.filter((k) => k.status === "red").length,
+  done: kaajList.filter((k) => k.status === "done").length,
+  repair: kaajList.filter((k) => k.kaajType === "repair").length,
+};
 
   //const startIndex = (currentPage - 1) * itemsPerPage;
   //const endIndex = startIndex + itemsPerPage;
@@ -195,6 +200,15 @@ const currentItems = sortedList.slice(startIndex, endIndex);
       border: "border-blue-100",
       sub: "text-blue-500",
     },
+    {
+  label: "Repair Items",
+  value: stats.repair,
+  icon: "🔨",
+  bg: "bg-white",
+  text: "text-orange-700",
+  border: "border-orange-100",
+  sub: "text-orange-500",
+},
   ];
 
   return (
@@ -214,7 +228,7 @@ const currentItems = sortedList.slice(startIndex, endIndex);
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           {statCards.map((stat) => (
             <div
               key={stat.label}
@@ -266,6 +280,19 @@ const currentItems = sortedList.slice(startIndex, endIndex);
               <option value="red">🔴 Overdue</option>
               <option value="done">🏆 Done</option>
               </select>
+              {/* Type Filter */}
+<select
+  value={kaajTypeFilter}
+  onChange={(e) => {
+    setKaajTypeFilter(e.target.value);
+    setCurrentPage(1);
+  }}
+  className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-gray-50 text-gray-700"
+>
+  <option value="all">All Types</option>
+  <option value="new">✨ New Work</option>
+  <option value="repair">🔨 Repair</option>
+</select>
               
               {/* Items per page */}
               <select

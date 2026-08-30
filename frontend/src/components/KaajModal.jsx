@@ -7,6 +7,7 @@ export default function KaajModal({ isOpen, onClose, onSuccess, editData }) {
   const [form, setForm] = useState({
     karigorName: "",
     karigorPhone: "",
+    kaajType: "new",
     kaajName: "",
     properties: "",
     notes: "",
@@ -21,6 +22,7 @@ export default function KaajModal({ isOpen, onClose, onSuccess, editData }) {
       setForm({
         karigorName: editData.karigorName || "",
         karigorPhone: editData.karigorPhone || "",
+        kaajType: editData.kaajType || "new",
         kaajName: editData.kaajName || "",
         properties: editData.properties || "",
         notes: editData.notes || "",
@@ -98,6 +100,39 @@ export default function KaajModal({ isOpen, onClose, onSuccess, editData }) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {/* Kaaj Type Toggle */}
+<div>
+  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+    Kaaj Type
+    <span className="text-red-400 ml-1">*</span>
+  </label>
+  <div className="flex gap-2">
+    <button
+      type="button"
+      onClick={() => setForm({ ...form, kaajType: "new" })}
+      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition border-2 ${
+        form.kaajType === "new"
+          ? "bg-yellow-500 text-white border-yellow-500 shadow-md"
+          : "bg-gray-50 text-gray-500 border-gray-200 hover:border-yellow-300"
+      }`}
+    >
+      <span>✨</span>
+      New Work
+    </button>
+    <button
+      type="button"
+      onClick={() => setForm({ ...form, kaajType: "repair" })}
+      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition border-2 ${
+        form.kaajType === "repair"
+          ? "bg-orange-500 text-white border-orange-500 shadow-md"
+          : "bg-gray-50 text-gray-500 border-gray-200 hover:border-orange-300"
+      }`}
+    >
+      <span>🔨</span>
+      Repair
+    </button>
+  </div>
+</div>
 
           {/* Karigor Name */}
           <div>

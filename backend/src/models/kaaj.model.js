@@ -12,6 +12,11 @@ const kaajSchema = new mongoose.Schema(
       trim: true,
       default: null,
     },
+    kaajType:{
+      type:String,
+      enum:["new","repair"],
+      default:"new",
+    },
     kaajName: {
       type: String,
       required: [true, "Kaaj name is required"],
