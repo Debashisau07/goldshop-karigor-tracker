@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
 
 export default function Login() {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,177 +17,232 @@ export default function Login() {
     setLoading(false);
   };
 
-  return (
-    <div className="min-h-screen flex">
+  const inputStyle = {
+    width: "100%",
+    background: "transparent",
+    border: "none",
+    borderBottom: "1px solid #D4C9B0",
+    padding: "12px 0",
+    fontSize: "14px",
+    color: "#1A1A1A",
+    outline: "none",
+    transition: "border-color 0.3s ease",
+    letterSpacing: "0.05em",
+  };
 
-      {/* Left Side — Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-600 flex-col justify-between p-12">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-xl">
-              💛
-            </div>
-            <span className="text-white font-bold text-xl">
-              Gold Karigor Tracker
+  return (
+    <div className="min-h-screen flex" style={{ background: "#FAFAF7" }}>
+
+      {/* Left — Decorative panel */}
+      <div className="hidden lg:flex lg:w-5/12 flex-col justify-between p-16 relative overflow-hidden"
+        style={{ background: "#F2EDE3" }}>
+
+        {/* Subtle grid texture */}
+        <div className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: "radial-gradient(circle, #B8960C15 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }} />
+
+        {/* Top */}
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-xl" style={{ color: "#B8960C" }}>⚒</span>
+            <span className="serif tracking-widest uppercase text-sm"
+              style={{ color: "#1A1A1A", letterSpacing: "0.2em" }}>
+              Karigor
             </span>
           </div>
+          <button
+            onClick={() => navigate("/")}
+            className="luxury-link text-xs mt-1"
+            style={{ color: "#B8960C", letterSpacing: "0.1em" }}>
+            ← Back to home
+          </button>
         </div>
 
-        <div>
-          <h1 className="text-5xl font-bold text-white leading-tight mb-6">
-            Manage Your
+        {/* Center quote */}
+        <div className="relative">
+          <div className="h-px w-10 mb-10" style={{ background: "#B8960C" }} />
+          <blockquote className="serif mb-6"
+            style={{
+              fontSize: "1.75rem",
+              fontWeight: "400",
+              lineHeight: "1.4",
+              color: "#1A1A1A",
+              fontStyle: "italic",
+            }}>
+            "Craftsmanship
             <br />
-            Gold Workshop
+            demands precision.
             <br />
-            <span className="text-yellow-100">Effortlessly</span>
-          </h1>
-          <p className="text-yellow-100 text-lg leading-relaxed">
-            Track karigor work items, monitor delivery status,
-            and get automatic alerts for overdue tasks.
+            So does management."
+          </blockquote>
+          <p className="text-xs tracking-widest uppercase"
+            style={{ color: "#B8960C", letterSpacing: "0.2em" }}>
+            Gold Karigor Tracker
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        {/* Bottom stats */}
+        <div className="relative grid grid-cols-2 gap-8">
           {[
-            { number: "100%", label: "Accurate Tracking" },
-            { number: "10AM", label: "Daily Alerts" },
-            { number: "Excel", label: "Easy Export" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="bg-white bg-opacity-20 rounded-2xl p-4 text-center"
-            >
-              <p className="text-white font-bold text-xl">{item.number}</p>
-              <p className="text-yellow-100 text-xs mt-1">{item.label}</p>
+            { value: "100%", label: "Accountability" },
+            { value: "0", label: "Paperwork" },
+          ].map((s) => (
+            <div key={s.label}>
+              <p className="serif mb-1"
+                style={{
+                  fontSize: "2rem",
+                  fontWeight: "400",
+                  color: "#B8960C",
+                  fontStyle: "italic",
+                }}>
+                {s.value}
+              </p>
+              <div className="h-px w-6 mb-2" style={{ background: "#B8960C" }} />
+              <p className="text-xs tracking-widest uppercase"
+                style={{ color: "#6B6560", letterSpacing: "0.15em" }}>
+                {s.label}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Right Side — Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
-        <div className="w-full max-w-md">
+      {/* Right — Login form */}
+      <div className="w-full lg:w-7/12 flex items-center justify-center p-8 lg:p-20">
+        <div className="w-full max-w-sm">
 
-          {/* Mobile Logo */}
-          <div className="lg:hidden text-center mb-8">
-            <div className="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3">
-              💛
-            </div>
-            <h1 className="text-2xl font-bold text-gray-800">
+          {/* Mobile logo */}
+          <div className="lg:hidden mb-12 flex items-center gap-3">
+            <span className="text-xl" style={{ color: "#B8960C" }}>⚒</span>
+            <span className="serif tracking-widest uppercase text-sm"
+              style={{ color: "#1A1A1A", letterSpacing: "0.2em" }}>
               Gold Karigor Tracker
-            </h1>
+            </span>
           </div>
 
-          {/* Form Card */}
-          <div className="bg-white rounded-3xl shadow-xl p-8">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-gray-800">
-                Welcome back
-              </h2>
-              <p className="text-gray-500 mt-2">
-                Sign in to your account to continue
-              </p>
+          {/* Header */}
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-px w-6" style={{ background: "#B8960C" }} />
+              <span className="text-xs tracking-widest uppercase"
+                style={{ color: "#B8960C", letterSpacing: "0.2em" }}>
+                Workspace Access
+              </span>
+            </div>
+            <h1 className="serif mb-3"
+              style={{
+                fontSize: "2.5rem",
+                fontWeight: "400",
+                color: "#1A1A1A",
+                lineHeight: "1.1",
+              }}>
+              Welcome
+              <br />
+              <span style={{ fontStyle: "italic" }}>Back.</span>
+            </h1>
+            <p className="text-sm"
+              style={{ color: "#6B6560", fontWeight: "300", letterSpacing: "0.03em" }}>
+              Sign in to continue to your workspace
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-10">
+
+            {/* Email */}
+            <div>
+              <label className="block text-xs tracking-widest uppercase mb-3"
+                style={{ color: "#B8960C", letterSpacing: "0.2em" }}>
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+                required
+                style={inputStyle}
+                onFocus={(e) =>
+                  (e.target.style.borderBottomColor = "#B8960C")
+                }
+                onBlur={(e) =>
+                  (e.target.style.borderBottomColor = "#D4C9B0")
+                }
+              />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                    </svg>
-                  </div>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    required
-                    className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 placeholder-gray-400 transition"
-                  />
-                </div>
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-xs tracking-widest uppercase"
+                  style={{ color: "#B8960C", letterSpacing: "0.2em" }}>
                   Password
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    className="w-full pl-12 pr-12 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 placeholder-gray-400 transition"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
+                <Link to="/forgot-password"
+                  className="luxury-link text-xs"
+                  style={{ color: "#6B6560", letterSpacing: "0.05em" }}>
+                  Forgot?
+                </Link>
               </div>
-              {/* Forgot Password Link */}
-<div className="text-right">
-  <Link
-    to="/forgot-password"
-    className="text-sm text-yellow-600 hover:text-yellow-700 font-medium transition"
-  >
-    Forgot password?
-  </Link>
-</div>
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-white font-bold py-4 rounded-xl transition-all duration-200 shadow-lg shadow-yellow-200 hover:shadow-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed text-lg mt-2"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Signing in...
-                  </span>
-                ) : (
-                  "Sign In"
-                )}
-              </button>
-
-            </form>
-
-            {/* Footer */}
-            <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400">
-                Gold Karigor Tracker • Secure Management System
-              </p>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  style={{ ...inputStyle, paddingRight: "32px" }}
+                  onFocus={(e) =>
+                    (e.target.style.borderBottomColor = "#B8960C")
+                  }
+                  onBlur={(e) =>
+                    (e.target.style.borderBottomColor = "#D4C9B0")
+                  }
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 bottom-3 text-xs"
+                  style={{ color: "#B8960C" }}>
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
             </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-4 text-sm tracking-widest uppercase font-medium transition-all duration-300 disabled:opacity-50"
+              style={{
+                background: "#1A1A1A",
+                color: "#FAFAF7",
+                letterSpacing: "0.2em",
+              }}
+              onMouseEnter={(e) => {
+                if (!loading)
+                  e.currentTarget.style.background = "#B8960C";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#1A1A1A";
+              }}
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+
+          </form>
+
+          {/* Footer */}
+          <div className="mt-16 pt-8" style={{ borderTop: "1px solid #E8E4DC" }}>
+            <p className="text-xs text-center"
+              style={{ color: "#C4BFB8", letterSpacing: "0.1em" }}>
+              Gold Karigor Tracker · Secure Workspace
+            </p>
           </div>
+
         </div>
       </div>
     </div>
