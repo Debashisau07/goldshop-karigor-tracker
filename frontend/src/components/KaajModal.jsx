@@ -2,20 +2,21 @@ import { useState, useEffect } from "react";
 import api from "../api/axios";
 import toast from "react-hot-toast";
 
+const gold = "#B8960C";
+const ivory = "#FAFAF7";
+const near = "#1A1A1A";
+const warm = "#6B6560";
+const divC = "#E8E4DC";
+
 export default function KaajModal({ isOpen, onClose, onSuccess, editData }) {
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    karigorName: "",
-    karigorPhone: "",
-    kaajType: "new",
-    kaajName: "",
-    properties: "",
-    notes: "",
+  const empty = {
+    karigorName: "", karigorPhone: "", kaajType: "new",
+    kaajName: "", properties: "", notes: "",
     issueDate: new Date().toISOString().split("T")[0],
-    issueOjon: "",
-    receiveOjon: "",
-    receiveDate: "",
-  });
+    issueOjon: "", receiveOjon: "", receiveDate: "",
+  };
+  const [form, setForm] = useState(empty);
 
   useEffect(() => {
     if (editData) {
@@ -32,23 +33,11 @@ export default function KaajModal({ isOpen, onClose, onSuccess, editData }) {
         receiveDate: editData.receiveDate?.split("T")[0] || "",
       });
     } else {
-      setForm({
-        karigorName: "",
-        karigorPhone: "",
-        kaajName: "",
-        properties: "",
-        notes: "",
-        issueDate: new Date().toISOString().split("T")[0],
-        issueOjon: "",
-        receiveOjon: "",
-        receiveDate: "",
-      });
+      setForm(empty);
     }
   }, [editData, isOpen]);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const set = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,268 +45,244 @@ export default function KaajModal({ isOpen, onClose, onSuccess, editData }) {
     try {
       if (editData) {
         await api.put(`/kaaj/${editData._id}`, form);
-        toast.success("Kaaj updated successfully");
+        toast.success("Record updated");
       } else {
         await api.post("/kaaj", form);
-        toast.success("Kaaj added successfully");
+        toast.success("Kaaj added");
       }
       onSuccess();
       onClose();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
+  const inp = {
+    width: "100%",
+    background: "transparent",
+    border: "none",
+    borderBottom: `1px solid ${divC}`,
+    padding: "10px 0",
+    fontSize: "13px",
+    color: near,
+    outline: "none",
+    letterSpacing: "0.04em",
+    transition: "border-color 0.2s",
+  };
+
+  const lbl = {
+    display: "block",
+    fontSize: "10px",
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: "0.2em",
+    color: gold,
+    marginBottom: "6px",
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(26,26,26,0.65)" }}>
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto border"
+        style={{ background: ivory, borderColor: divC }}>
 
         {/* Header */}
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+        <div className="px-8 py-6 border-b flex items-center justify-between"
+          style={{ borderColor: divC }}>
           <div>
-            <h2 className="text-xl font-bold text-gray-800">
-              {editData ? "Edit Kaaj" : "Add New Kaaj"}
+            <div className="flex items-center gap-3 mb-1.5">
+              <div className="h-px w-5" style={{ background: gold }} />
+              <span style={{ ...lbl, marginBottom: 0 }}>
+                {editData ? "Edit Record" : "New Record"}
+              </span>
+            </div>
+            <h2 className="serif"
+              style={{ fontSize: "1.4rem", fontWeight: "400", color: near }}>
+              {editData ? "Update Kaaj Details" : "Add New Kaaj"}
             </h2>
-            <p className="text-gray-400 text-sm mt-0.5">
-              {editData
-                ? "Update karigor work item details"
-                : "Fill in the karigor work item details"}
-            </p>
           </div>
-          <button
-            onClick={onClose}
-            className="w-9 h-9 bg-gray-100 hover:bg-gray-200 rounded-xl flex items-center justify-center text-gray-500 transition"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+          <button onClick={onClose}
+            style={{ color: warm, fontSize: "18px", background: "none", border: "none", cursor: "pointer" }}
+            onMouseEnter={(e) => (e.target.style.color = near)}
+            onMouseLeave={(e) => (e.target.style.color = warm)}>
+            ✕
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Kaaj Type Toggle */}
-<div>
-  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-    Kaaj Type
-    <span className="text-red-400 ml-1">*</span>
-  </label>
-  <div className="flex gap-2">
-    <button
-      type="button"
-      onClick={() => setForm({ ...form, kaajType: "new" })}
-      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition border-2 ${
-        form.kaajType === "new"
-          ? "bg-yellow-500 text-white border-yellow-500 shadow-md"
-          : "bg-gray-50 text-gray-500 border-gray-200 hover:border-yellow-300"
-      }`}
-    >
-      <span>✨</span>
-      New Work
-    </button>
-    <button
-      type="button"
-      onClick={() => setForm({ ...form, kaajType: "repair" })}
-      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition border-2 ${
-        form.kaajType === "repair"
-          ? "bg-orange-500 text-white border-orange-500 shadow-md"
-          : "bg-gray-50 text-gray-500 border-gray-200 hover:border-orange-300"
-      }`}
-    >
-      <span>🔨</span>
-      Repair
-    </button>
-  </div>
-</div>
+        <form onSubmit={handleSubmit} style={{ padding: "32px" }}>
 
-          {/* Karigor Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Karigor Name
-              <span className="text-red-400 ml-1">*</span>
-              <span className="text-gray-400 font-normal ml-1">(কারিগরের নাম)</span>
-            </label>
-            <input
-              name="karigorName"
-              value={form.karigorName}
-              onChange={handleChange}
-              required
-              placeholder="e.g. Rahim Mia"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 placeholder-gray-400 transition text-sm"
-            />
+          {/* Kaaj Type */}
+          <div style={{ marginBottom: "28px" }}>
+            <label style={lbl}>Kaaj Type *</label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+              {[
+                { val: "new", label: "New Work", icon: "✦" },
+                { val: "repair", label: "Repair", icon: "⚙" },
+              ].map((opt) => (
+                <button key={opt.val} type="button"
+                  onClick={() => setForm({ ...form, kaajType: opt.val })}
+                  style={{
+                    padding: "12px",
+                    border: `1px solid ${form.kaajType === opt.val ? gold : divC}`,
+                    background: form.kaajType === opt.val ? "#fefdf7" : "transparent",
+                    color: form.kaajType === opt.val ? gold : warm,
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                  }}>
+                  <span>{opt.icon}</span>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Phone */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Phone Number
-              <span className="text-gray-400 font-normal ml-1">(Optional)</span>
-            </label>
-            <input
-              name="karigorPhone"
-              value={form.karigorPhone}
-              onChange={handleChange}
-              placeholder="e.g. 01711000001"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 placeholder-gray-400 transition text-sm"
-            />
-          </div>
-
-          {/* Kaaj Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Kaaj Name
-              <span className="text-red-400 ml-1">*</span>
-              <span className="text-gray-400 font-normal ml-1">(কাজের নাম)</span>
-            </label>
-            <input
-              name="kaajName"
-              value={form.kaajName}
-              onChange={handleChange}
-              required
-              placeholder="e.g. Necklace Design, Ring Polish"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 placeholder-gray-400 transition text-sm"
-            />
-          </div>
+          {/* Fields */}
+          {[
+            { name: "karigorName", label: "Karigor Name", required: true, placeholder: "e.g. Rahim Mia" },
+            { name: "karigorPhone", label: "Phone (Optional)", required: false, placeholder: "e.g. 01711000001" },
+            { name: "kaajName", label: "Kaaj Name", required: true, placeholder: "e.g. Necklace Design" },
+          ].map((f) => (
+            <div key={f.name} style={{ marginBottom: "24px" }}>
+              <label style={lbl}>{f.label} {f.required && "*"}</label>
+              <input name={f.name} value={form[f.name]}
+                onChange={set} required={f.required}
+                placeholder={f.placeholder}
+                style={inp}
+                onFocus={(e) => (e.target.style.borderBottomColor = gold)}
+                onBlur={(e) => (e.target.style.borderBottomColor = divC)}
+              />
+            </div>
+          ))}
 
           {/* Properties */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Properties
-              <span className="text-red-400 ml-1">*</span>
-              <span className="text-gray-400 font-normal ml-1">(বিবরণ)</span>
-            </label>
-            <textarea
-              name="properties"
-              value={form.properties}
-              onChange={handleChange}
-              required
-              rows={2}
-              placeholder="e.g. 2 gold chains, 1 pendant, enamel materials"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 placeholder-gray-400 transition text-sm resize-none"
+          <div style={{ marginBottom: "24px" }}>
+            <label style={lbl}>Properties *</label>
+            <textarea name="properties" value={form.properties}
+              onChange={set} required rows={2}
+              placeholder="e.g. 2 gold chains, 1 pendant"
+              style={{ ...inp, resize: "none", paddingTop: "10px" }}
+              onFocus={(e) => (e.target.style.borderBottomColor = gold)}
+              onBlur={(e) => (e.target.style.borderBottomColor = divC)}
             />
           </div>
 
-          {/* Issue Date + Issue Ojon */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Issue Date + Ojon */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Issue Date
-                <span className="text-red-400 ml-1">*</span>
-              </label>
-              <input
-                type="date"
-                name="issueDate"
-                value={form.issueDate}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 transition text-sm"
+              <label style={lbl}>Issue Date *</label>
+              <input type="date" name="issueDate" value={form.issueDate}
+                onChange={set} required
+                style={{ ...inp, colorScheme: "light" }}
+                onFocus={(e) => (e.target.style.borderBottomColor = gold)}
+                onBlur={(e) => (e.target.style.borderBottomColor = divC)}
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                Issue Ojon (g)
-                <span className="text-red-400 ml-1">*</span>
-              </label>
-              <input
-                type="number"
-                name="issueOjon"
-                value={form.issueOjon}
-                onChange={handleChange}
-                required
-                step="0.01"
-                placeholder="e.g. 45.5"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 placeholder-gray-400 transition text-sm"
+              <label style={lbl}>Issue Ojon (g) *</label>
+              <input type="number" name="issueOjon" value={form.issueOjon}
+                onChange={set} required step="0.01" placeholder="e.g. 45.5"
+                style={inp}
+                onFocus={(e) => (e.target.style.borderBottomColor = gold)}
+                onBlur={(e) => (e.target.style.borderBottomColor = divC)}
               />
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="border-t border-dashed border-gray-200 pt-2">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
-              Fill below when work is returned
+          {/* Receive section */}
+          <div style={{
+            border: `1px dashed ${divC}`,
+            padding: "20px",
+            marginBottom: "24px",
+          }}>
+            <p style={{ ...lbl, color: warm, marginBottom: "16px" }}>
+              Fill when work is returned
             </p>
-
-            {/* Receive Date + Receive Ojon */}
-            <div className="grid grid-cols-2 gap-4">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Receive Date
-                </label>
-                <input
-                  type="date"
-                  name="receiveDate"
-                  value={form.receiveDate}
-                  onChange={handleChange}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 transition text-sm"
+                <label style={lbl}>Receive Date</label>
+                <input type="date" name="receiveDate" value={form.receiveDate}
+                  onChange={set}
+                  style={{ ...inp, colorScheme: "light" }}
+                  onFocus={(e) => (e.target.style.borderBottomColor = gold)}
+                  onBlur={(e) => (e.target.style.borderBottomColor = divC)}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Receive Ojon (g)
-                </label>
-                <input
-                  type="number"
-                  name="receiveOjon"
-                  value={form.receiveOjon}
-                  onChange={handleChange}
-                  step="0.01"
-                  placeholder="e.g. 44.8"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 placeholder-gray-400 transition text-sm"
+                <label style={lbl}>Receive Ojon (g)</label>
+                <input type="number" name="receiveOjon" value={form.receiveOjon}
+                  onChange={set} step="0.01" placeholder="e.g. 44.8"
+                  style={inp}
+                  onFocus={(e) => (e.target.style.borderBottomColor = gold)}
+                  onBlur={(e) => (e.target.style.borderBottomColor = divC)}
                 />
               </div>
             </div>
           </div>
 
           {/* Notes */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Notes
-              <span className="text-gray-400 font-normal ml-1">(Optional — max 200 chars)</span>
-            </label>
-            <input
-              name="notes"
-              value={form.notes}
-              onChange={handleChange}
-              placeholder="e.g. Customer waiting urgently"
-              maxLength={200}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent bg-gray-50 text-gray-800 placeholder-gray-400 transition text-sm"
+          <div style={{ marginBottom: "32px" }}>
+            <label style={lbl}>Notes (Optional)</label>
+            <input name="notes" value={form.notes}
+              onChange={set} maxLength={200}
+              placeholder="Any special instructions..."
+              style={inp}
+              onFocus={(e) => (e.target.style.borderBottomColor = gold)}
+              onBlur={(e) => (e.target.style.borderBottomColor = divC)}
             />
           </div>
 
           {/* Buttons */}
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 border border-gray-200 text-gray-600 py-3 rounded-xl font-semibold hover:bg-gray-50 transition text-sm"
-            >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            <button type="button" onClick={onClose}
+              style={{
+                padding: "14px",
+                border: `1px solid ${divC}`,
+                background: "transparent",
+                color: warm,
+                fontSize: "11px",
+                fontWeight: "600",
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = near)}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = divC)}>
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-white py-3 rounded-xl font-semibold transition shadow-lg shadow-yellow-100 disabled:opacity-50 text-sm"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Saving...
-                </span>
-              ) : editData ? (
-                "Update Kaaj"
-              ) : (
-                "Save Kaaj"
-              )}
+            <button type="submit" disabled={loading}
+              style={{
+                padding: "14px",
+                background: loading ? warm : near,
+                color: ivory,
+                fontSize: "11px",
+                fontWeight: "600",
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                border: "none",
+                cursor: loading ? "not-allowed" : "pointer",
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={(e) => !loading && (e.currentTarget.style.background = gold)}
+              onMouseLeave={(e) => !loading && (e.currentTarget.style.background = near)}>
+              {loading ? "Saving..." : editData ? "Update" : "Save Kaaj"}
             </button>
           </div>
         </form>
+
+        <style>{`.serif { font-family: Georgia, 'Times New Roman', serif; }`}</style>
       </div>
     </div>
   );

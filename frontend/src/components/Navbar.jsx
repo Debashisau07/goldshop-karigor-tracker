@@ -1,76 +1,92 @@
-import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { Link, useLocation } from "react-router-dom";
+
+const gold = "#B8960C";
+const ivory = "#FAFAF7";
+const near = "#1A1A1A";
+const warm = "#6B6560";
+const divC = "#E8E4DC";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const location = useLocation();
 
   return (
-    <nav className="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+    <nav className="sticky top-0 z-40 border-b"
+      style={{
+        background: "rgba(250,250,247,0.97)",
+        borderColor: divC,
+        backdropFilter: "blur(16px)",
+      }}>
+      <div className="max-w-screen-xl mx-auto px-6 sm:px-10 h-14 flex items-center justify-between">
 
-      {/* Logo */}
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-xl flex items-center justify-center text-lg shadow-md">
-          💛
-        </div>
-        <div>
-          <h1 className="text-base font-bold text-gray-800 leading-none">
-            Gold Karigor Tracker
-          </h1>
-          <p className="text-xs text-gray-400 leading-none mt-0.5">
-            Workshop Management
-          </p>
-        </div>
-      </div>
+        {/* Logo */}
+        <Link to="/dashboard" className="flex items-center gap-2.5">
+          <span style={{ color: gold, fontSize: "16px" }}>⚒</span>
+          <span className="serif text-sm tracking-widest font-normal"
+            style={{ color: near, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+            Karigor
+          </span>
+        </Link>
 
-      {/* Right */}
-      <div className="flex items-center gap-3">
-
-        {/* User Info */}
-        <div className="hidden sm:flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-            {user?.name?.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-700 leading-none">
-              {user?.name}
-            </p>
-            <p className="text-xs text-gray-400 leading-none mt-0.5 capitalize">
-              {user?.role}
-            </p>
-          </div>
-        </div>
-
-        {/* Admin Panel Link - only for admin */}
-        {user?.role === "admin" && (
-          <Link
-            to="/admin"
-            className="flex items-center gap-2 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border border-yellow-200 px-4 py-2 rounded-xl text-sm font-semibold transition"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z"
-              />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Admin Panel
+        {/* Nav links */}
+        <div className="flex items-center gap-6">
+          <Link to="/dashboard"
+            className="text-xs font-medium tracking-widest transition-colors duration-200"
+            style={{
+              textTransform: "uppercase",
+              letterSpacing: "0.15em",
+              color: location.pathname === "/dashboard" ? gold : warm,
+              borderBottom: location.pathname === "/dashboard" ? `1px solid ${gold}` : "none",
+              paddingBottom: "2px",
+            }}>
+            Dashboard
           </Link>
-        )}
 
-        {/* Logout */}
-        <button
-          onClick={logout}
-          className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-xl text-sm font-semibold transition"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span className="hidden sm:inline">Logout</span>
-        </button>
+          {user?.role === "admin" && (
+            <Link to="/admin"
+              className="text-xs font-medium tracking-widest transition-colors duration-200"
+              style={{
+                textTransform: "uppercase",
+                letterSpacing: "0.15em",
+                color: location.pathname === "/admin" ? gold : warm,
+                borderBottom: location.pathname === "/admin" ? `1px solid ${gold}` : "none",
+                paddingBottom: "2px",
+              }}>
+              Admin
+            </Link>
+          )}
+        </div>
 
+        {/* Right */}
+        <div className="flex items-center gap-5">
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white"
+              style={{ background: gold }}>
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="text-xs font-medium leading-none" style={{ color: near }}>
+                {user?.name}
+              </p>
+              <p className="text-xs leading-none mt-0.5 capitalize"
+                style={{ color: warm, fontSize: "10px", letterSpacing: "0.08em" }}>
+                {user?.role}
+              </p>
+            </div>
+          </div>
+
+          <button onClick={logout}
+            className="text-xs font-medium tracking-widest transition-colors duration-200"
+            style={{ color: warm, letterSpacing: "0.15em", textTransform: "uppercase" }}
+            onMouseEnter={(e) => (e.target.style.color = "#dc2626")}
+            onMouseLeave={(e) => (e.target.style.color = warm)}>
+            Sign Out
+          </button>
+        </div>
       </div>
+
+      <style>{`.serif { font-family: Georgia, 'Times New Roman', serif; }`}</style>
     </nav>
   );
 }

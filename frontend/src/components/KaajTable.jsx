@@ -1,278 +1,289 @@
+const gold = "#B8960C";
+const near = "#1A1A1A";
+const warm = "#6B6560";
+const divC = "#E8E4DC";
+const ivory = "#FAFAF7";
+
 const statusConfig = {
-  green: {
-    bg: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-    dot: "bg-emerald-500",
-    label: "On Time",
-    row: "",
-  },
-  yellow: {
-    bg: "bg-yellow-50 text-yellow-700 border border-yellow-200",
-    dot: "bg-yellow-500",
-    label: "Pending",
-    row: "bg-yellow-50/50",
-  },
-  red: {
-    bg: "bg-red-50 text-red-700 border border-red-200",
-    dot: "bg-red-500",
-    label: "Overdue",
-    row: "bg-red-50/50",
-  },
-  done: {
-    bg: "bg-blue-50 text-blue-700 border border-blue-200",
-    dot: "bg-blue-500",
-    label: "Completed",
-    row: "bg-blue-50/30",
-  },
+  green:  { label: "On Time",   color: "#16a34a", bg: "#f0fdf4", border: "#bbf7d0" },
+  yellow: { label: "Pending",   color: "#ca8a04", bg: "#fefce8", border: "#fde68a" },
+  red:    { label: "Overdue",   color: "#dc2626", bg: "#fff5f5", border: "#fecaca" },
+  done:   { label: "Completed", color: gold,      bg: "#fefdf7", border: "#fde68a" },
 };
 
-export default function KaajTable({
-  kaajList,
-  onEdit,
-  onDelete,
-  sortField,
-  sortOrder,
-  onSort,
-}) {
-  const SortIcon = ({ field }) => {
-    if (sortField !== field) {
-      return <span className="text-gray-300 ml-1">↕</span>;
-    }
-    return (
-      <span className="text-yellow-500 ml-1">
-        {sortOrder === "asc" ? "↑" : "↓"}
-      </span>
-    );
-  };
-  const formatDate = (date) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
+export default function KaajTable({ kaajList, onEdit, onDelete, sortField, sortOrder, onSort }) {
+
+  const SortBtn = ({ field }) => (
+    <span className="ml-1 text-xs"
+      style={{ color: sortField === field ? gold : "#ccc" }}>
+      {sortField === field ? (sortOrder === "asc" ? "↑" : "↓") : "↕"}
+    </span>
+  );
+
+  const fmtDate = (d) => {
+    if (!d) return "—";
+    return new Date(d).toLocaleDateString("en-IN", {
+      day: "2-digit", month: "short", year: "numeric",
     });
   };
-  const formatIST = (date) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleString("en-IN", {
+
+  const fmtIST = (d) => {
+    if (!d) return "—";
+    return new Date(d).toLocaleString("en-IN", {
       timeZone: "Asia/Kolkata",
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
+      day: "2-digit", month: "short",
+      hour: "2-digit", minute: "2-digit", hour12: true,
     });
+  };
+
+  const thStyle = {
+    padding: "10px 14px",
+    textAlign: "left",
+    fontSize: "10px",
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: "0.18em",
+    color: warm,
+    background: "#F2EDE3",
+    borderBottom: `1px solid ${divC}`,
+    whiteSpace: "nowrap",
+  };
+
+  const tdStyle = {
+    padding: "14px",
+    borderBottom: `1px solid #F5F0E8`,
+    verticalAlign: "top",
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+    <div style={{ background: ivory, border: `1px solid ${divC}` }}>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                #
+            <tr>
+              <th style={thStyle}>#</th>
+              <th style={{ ...thStyle, cursor: "pointer" }}
+                onClick={() => onSort("karigorName")}>
+                Karigor <SortBtn field="karigorName" />
               </th>
-              <th
-                onClick={() => onSort("karigorName")}
-                className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none"
-              >
-                Karigor <SortIcon field="karigorName" />
+              <th style={thStyle}>Kaaj Details</th>
+              <th style={{ ...thStyle, cursor: "pointer" }}
+                onClick={() => onSort("issueDate")}>
+                Issue Date <SortBtn field="issueDate" />
               </th>
-              <th className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Kaaj Details
+              <th style={thStyle}>Issue Ojon</th>
+              <th style={thStyle}>Receive Ojon</th>
+              <th style={thStyle}>Extra</th>
+              <th style={thStyle}>Receive Date</th>
+              <th style={{ ...thStyle, cursor: "pointer" }}
+                onClick={() => onSort("daysPending")}>
+                Status <SortBtn field="daysPending" />
               </th>
-              <th
-                onClick={() => onSort("issueDate")}
-                className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none"
-              >
-                Issue Date <SortIcon field="issueDate" />
-              </th>
-              <th className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Issue Ojon
-              </th>
-              <th className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Receive Ojon
-              </th>
-              <th className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Extra
-              </th>
-              <th className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Receive Date
-              </th>
-              <th
-                onClick={() => onSort("daysPending")}
-                className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none"
-              >
-                Status <SortIcon field="daysPending" />
-              </th>
-              <th className="px-5 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
+              <th style={thStyle}>Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody>
             {kaajList.length === 0 ? (
               <tr>
-                <td colSpan={10} className="text-center py-16">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center text-3xl">
-                      📋
-                    </div>
-                    <p className="text-gray-400 font-medium">
-                      No records found
-                    </p>
-                    <p className="text-gray-300 text-xs">
-                      Add a new kaaj to get started
-                    </p>
-                  </div>
+                <td colSpan={10} style={{ ...tdStyle, textAlign: "center", padding: "64px" }}>
+                  <p className="serif" style={{ color: "#C4BFB8", fontSize: "1.1rem", fontStyle: "italic" }}>
+                    No records found
+                  </p>
+                  <p style={{ color: "#D4CFCA", fontSize: "12px", marginTop: "8px", letterSpacing: "0.1em" }}>
+                    Add a new kaaj to get started
+                  </p>
                 </td>
               </tr>
             ) : (
-              kaajList.map((kaaj, index) => {
-                const status = statusConfig[kaaj.status] || statusConfig.green;
+              kaajList.map((k, i) => {
+                const s = statusConfig[k.status] || statusConfig.green;
+                const rowBg =
+                  k.status === "red" ? "#fff8f8"
+                  : k.status === "yellow" ? "#fffef5"
+                  : ivory;
                 return (
-                  <tr
-                    key={kaaj._id}
-                    className={`${status.row} hover:bg-gray-50 transition-colors`}
-                  >
-                    <td className="px-5 py-4 text-gray-400 font-medium text-xs">
-                      {index + 1}
+                  <tr key={k._id}
+                    style={{ background: rowBg }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "#F5F0E8")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = rowBg)}>
+
+                    {/* # */}
+                    <td style={{ ...tdStyle, color: "#C4BFB8", fontSize: "11px" }}>
+                      {i + 1}
                     </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                          {kaaj.karigorName.charAt(0).toUpperCase()}
+
+                    {/* Karigor */}
+                    <td style={tdStyle}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div style={{
+                          width: "28px", height: "28px",
+                          background: gold,
+                          color: "#fff",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: "11px", fontWeight: "700",
+                          flexShrink: 0,
+                        }}>
+                          {k.karigorName.charAt(0).toUpperCase()}
                         </div>
-                       <div>
-  <div className="flex items-center gap-2">
-    <p className="font-semibold text-gray-800">
-      {kaaj.karigorName}
-    </p>
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold ${
-      kaaj.kaajType === "repair"
-        ? "bg-orange-100 text-orange-700"
-        : "bg-yellow-100 text-yellow-700"
-    }`}>
-      {kaaj.kaajType === "repair" ? "🔨 Repair" : "✨ New"}
-    </span>
-  </div>
-  {kaaj.karigorPhone && (
-    <p className="text-gray-400 text-xs">
-      {kaaj.karigorPhone}
-    </p>
-  )}
-</div>
+                        <div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                            <span style={{ fontWeight: "600", color: near }}>
+                              {k.karigorName}
+                            </span>
+                            <span style={{
+                              fontSize: "10px", fontWeight: "600",
+                              padding: "1px 7px",
+                              border: `1px solid ${k.kaajType === "repair" ? "#fed7aa" : "#fde68a"}`,
+                              background: k.kaajType === "repair" ? "#fff7ed" : "#fefce8",
+                              color: k.kaajType === "repair" ? "#ea580c" : gold,
+                              letterSpacing: "0.08em",
+                              textTransform: "uppercase",
+                            }}>
+                              {k.kaajType === "repair" ? "Repair" : "New"}
+                            </span>
+                          </div>
+                          {k.karigorPhone && (
+                            <p style={{ fontSize: "11px", color: "#C4BFB8", marginTop: "2px" }}>
+                              {k.karigorPhone}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </td>
-                    <td className="px-5 py-4">
-                      <p className="font-semibold text-gray-800">
-                        {kaaj.kaajName}
+
+                    {/* Kaaj Details */}
+                    <td style={{ ...tdStyle, maxWidth: "200px" }}>
+                      <p style={{ fontWeight: "600", color: near }}>{k.kaajName}</p>
+                      <p style={{ fontSize: "11px", color: warm, marginTop: "2px" }}>
+                        {k.properties}
                       </p>
-                      <p className="text-gray-400 text-xs truncate max-w-40 mt-0.5">
-                        {kaaj.properties}
-                      </p>
-                      {kaaj.notes && (
-                        <p className="text-blue-400 text-xs mt-0.5 italic">
-                          Note: {kaaj.notes}
+                      {k.notes && (
+                        <p style={{ fontSize: "11px", color: "#60a5fa", marginTop: "2px", fontStyle: "italic" }}>
+                          {k.notes}
                         </p>
                       )}
-                      <div className="mt-1.5 space-y-0.5">
-                        <p className="text-grey-300 text-xs">
-                          🕐 Created: {formatIST(kaaj.createdAt)}
+                      <div style={{ marginTop: "6px" }}>
+                        <p style={{ fontSize: "10px", color: "#C4BFB8", letterSpacing: "0.04em" }}>
+                          Created: {fmtIST(k.createdAt)}
                         </p>
-                        <p className="text-grey-300 text-xs">
-                          🕐 Updated: {formatIST(kaaj.updatedAt)}
+                        <p style={{ fontSize: "10px", color: "#D4CFCA", letterSpacing: "0.04em" }}>
+                          Updated: {fmtIST(k.updatedAt)}
                         </p>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-gray-600 text-xs whitespace-nowrap">
-                      {formatDate(kaaj.issueDate)}
+
+                    {/* Issue Date */}
+                    <td style={{ ...tdStyle, color: warm, whiteSpace: "nowrap", fontSize: "12px" }}>
+                      {fmtDate(k.issueDate)}
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="font-semibold text-gray-800">
-                        {kaaj.issueOjon}
-                        <span className="text-gray-400 font-normal text-xs ml-0.5">
-                          g
-                        </span>
+
+                    {/* Issue Ojon */}
+                    <td style={tdStyle}>
+                      <span style={{ fontWeight: "600", color: near }}>
+                        {k.issueOjon}
+                        <span style={{ fontSize: "10px", color: warm, marginLeft: "2px" }}>g</span>
                       </span>
                     </td>
-                    <td className="px-5 py-4">
-                      {kaaj.receiveOjon ? (
-                        <span className="font-semibold text-gray-800">
-                          {kaaj.receiveOjon}
-                          <span className="text-gray-400 font-normal text-xs ml-0.5">
-                            g
-                          </span>
+
+                    {/* Receive Ojon */}
+                    <td style={tdStyle}>
+                      {k.receiveOjon ? (
+                        <span style={{ fontWeight: "600", color: near }}>
+                          {k.receiveOjon}
+                          <span style={{ fontSize: "10px", color: warm, marginLeft: "2px" }}>g</span>
                         </span>
                       ) : (
-                        <span className="text-gray-300">—</span>
+                        <span style={{ color: "#D4CFCA" }}>—</span>
                       )}
                     </td>
-                    <td className="px-5 py-4">
-                      {kaaj.extraOjon ? (
-                        <span className="font-semibold text-orange-500">
-                          {kaaj.extraOjon}
-                          <span className="text-orange-300 font-normal text-xs ml-0.5">
-                            g
-                          </span>
+
+                    {/* Extra */}
+                    <td style={tdStyle}>
+                      {k.extraOjon != null ? (
+                        <span style={{
+                          fontWeight: "600",
+                          color: parseFloat(k.extraOjon) > 0 ? "#16a34a"
+                            : parseFloat(k.extraOjon) < 0 ? "#dc2626"
+                            : warm,
+                        }}>
+                          {k.extraOjon}
+                          <span style={{ fontSize: "10px", color: warm, marginLeft: "2px" }}>g</span>
                         </span>
                       ) : (
-                        <span className="text-gray-300">—</span>
+                        <span style={{ color: "#D4CFCA" }}>—</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-gray-600 text-xs whitespace-nowrap">
-                      {formatDate(kaaj.receiveDate)}
+
+                    {/* Receive Date */}
+                    <td style={{ ...tdStyle, color: warm, whiteSpace: "nowrap", fontSize: "12px" }}>
+                      {fmtDate(k.receiveDate)}
                     </td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${status.bg}`}
-                      >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${status.dot}`}
-                        />
-                        {status.label}
+
+                    {/* Status */}
+                    <td style={tdStyle}>
+                      <span style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        padding: "3px 10px",
+                        border: `1px solid ${s.border}`,
+                        background: s.bg,
+                        color: s.color,
+                        fontSize: "11px",
+                        fontWeight: "600",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                      }}>
+                        <span style={{
+                          width: "5px", height: "5px",
+                          borderRadius: "50%",
+                          background: s.color,
+                          flexShrink: 0,
+                        }} />
+                        {s.label}
                       </span>
                     </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => onEdit(kaaj)}
-                          className="flex items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition"
-                        >
-                          <svg
-                            className="w-3 h-3"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
+
+                    {/* Actions */}
+                    <td style={tdStyle}>
+                      <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                        <button onClick={() => onEdit(k)}
+                          className="transition-colors duration-200"
+                          style={{
+                            fontSize: "11px",
+                            fontWeight: "600",
+                            letterSpacing: "0.12em",
+                            textTransform: "uppercase",
+                            padding: "4px 12px",
+                            border: `1px solid ${divC}`,
+                            color: warm,
+                            background: "transparent",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = gold;
+                            e.currentTarget.style.color = gold;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = divC;
+                            e.currentTarget.style.color = warm;
+                          }}>
                           Edit
                         </button>
-                        {kaaj.status === "done" && (
-                          <button
-                            onClick={() => onDelete(kaaj)}
-                            className="flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-semibold transition"
-                          >
-                            <svg
-                              className="w-3 h-3"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                              />
-                            </svg>
+                        {k.status === "done" && (
+                          <button onClick={() => onDelete(k)}
+                            className="transition-colors duration-200"
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "600",
+                              letterSpacing: "0.12em",
+                              textTransform: "uppercase",
+                              padding: "4px 12px",
+                              border: "1px solid #fecaca",
+                              color: "#dc2626",
+                              background: "transparent",
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = "#fff5f5")}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
                             Delete
                           </button>
                         )}
@@ -285,6 +296,7 @@ export default function KaajTable({
           </tbody>
         </table>
       </div>
+      <style>{`.serif { font-family: Georgia, 'Times New Roman', serif; }`}</style>
     </div>
   );
 }
